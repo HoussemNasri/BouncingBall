@@ -3,7 +3,7 @@ package org.example.components;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import org.example.Contained;
-import org.example.Movable;
+import org.example.behaviours.Movable;
 
 public class BallComponent extends Component<Circle> implements Movable, Contained {
     private double radius;
