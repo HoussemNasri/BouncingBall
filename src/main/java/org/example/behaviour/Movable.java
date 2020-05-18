@@ -1,4 +1,4 @@
-package org.example.behaviours;
+package org.example.behaviour;
 
 public interface Movable {
     void move();

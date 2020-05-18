@@ -1,6 +1,6 @@
 package org.example.collision;
 
-public interface CollisionHandler {
+public interface PlaygroundCollider {
 
     void onReachVerticalBorder();
 

@@ -3,7 +3,7 @@ package org.example.components;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
-public abstract class Component<T extends Node> {
+public abstract class BaseComponent<T extends Node> {
     protected T node;
     protected Color color;
     protected double posX;
@@ -11,7 +11,7 @@ public abstract class Component<T extends Node> {
     protected double getWidth;
     private double getHeight;
 
-    public Component(double posX, double posY, double width, double height, Color color) {
+    public BaseComponent(double posX, double posY, double width, double height, Color color) {
         this.posX = posX;
         this.posY = posY;
         this.color = color;

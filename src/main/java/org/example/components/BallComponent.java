@@ -2,21 +2,23 @@ package org.example.components;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import org.example.Contained;
-import org.example.behaviours.Movable;
+import org.example.config.PConfiguration;
+import org.example.config.PlaygroundConfig;
+import org.example.behaviour.Movable;
+import org.example.collision.PlaygroundCollider;
+import org.example.config.PlaygroundFactory;
 
-public class BallComponent extends Component<Circle> implements Movable, Contained {
+public class BallComponent extends BaseComponent<Circle> implements Movable, PlaygroundCollider {
     private double radius;
     private double xVelocity = DEFAULT_X_VELOCITY;
     private double yVelocity = DEFAULT_Y_VELOCITY;
-    private double containerWidth;
-    private double containerHeight;
+    private final PlaygroundConfig playgroundConfig = PlaygroundFactory.instance(PConfiguration.DEFAUlT);
+    private double mass;
 
-    public BallComponent(double containerWidth, double containerHeight, double posX, double posY, double radius, Color color) {
+    public BallComponent(double posX, double posY, double radius, Color color) {
         super(posX, posY, radius * 2, radius * 2, color);
         this.radius = radius;
-        this.containerWidth = containerWidth;
-        this.containerHeight = containerHeight;
+        this.mass = radius * 2;
         node = new Circle();
 
         setPosX(posX);
@@ -25,16 +27,12 @@ public class BallComponent extends Component<Circle> implements Movable, Contain
         setColor(color);
     }
 
-    public BallComponent(double containerWidth, double containerHeight, double posX, double posY, double radius) {
-        this(containerWidth, containerHeight, posX, posY, radius, Color.BLACK);
+    public BallComponent(double posX, double posY, double radius) {
+        this(posX, posY, radius, Color.BLACK);
     }
 
-    public BallComponent(double containerWidth, double containerHeight, double posX, double posY) {
-        this(containerWidth, containerHeight, posX, posY, 10.0d, Color.BLACK);
-    }
-
-    public BallComponent(double containerWidth, double containerHeight) {
-        this(containerWidth, containerHeight, 100.0d, 100.0d);
+    public BallComponent(double posX, double posY) {
+        this(posX, posY, 10.0d, Color.BLACK);
     }
 
 
@@ -92,37 +90,35 @@ public class BallComponent extends Component<Circle> implements Movable, Contain
 
     @Override
     public void onReachHorizontalBorder() {
+        if (getPosX() < radius)
+            setPosX(radius);
+        if (posX > playgroundConfig.getWidth() - radius)
+            setPosX(playgroundConfig.getWidth() - radius);
         setXVelocity(xVelocity * -1);
     }
 
     @Override
     public boolean hasReachedTopBorder() {
-        System.out.println(posX);
-        return posY - radius <= 0;
+        return posY - radius < 0;
     }
 
     @Override
     public boolean hasReachedRightBorder() {
-        return posX + radius >= containerWidth;
+        return posX + radius >= playgroundConfig.getWidth();
     }
 
     @Override
     public boolean hasReachedBottomBorder() {
-        return posY + radius >= containerHeight;
+        return posY + radius > playgroundConfig.getHeight();
     }
 
     @Override
     public boolean hasReachedLeftBorder() {
-        return posX - radius <= 0;
+        return posX - radius < 0;
     }
 
-    @Override
-    public double getContainerWidth() {
-        return containerWidth;
-    }
 
-    @Override
-    public double getContainerHeight() {
-        return containerHeight;
+    public double getMass() {
+        return mass;
     }
 }
