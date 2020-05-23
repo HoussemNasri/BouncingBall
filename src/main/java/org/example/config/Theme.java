@@ -3,13 +3,9 @@ package org.example.config;
 
 import javafx.scene.paint.Color;
 
-public interface PlaygroundConfig<T> {
+public interface Theme<T> {
 
     Color getBackgroundColor();
-
-    double getWidth();
-
-    double getHeight();
 
     Color getBallBackgroundColor();
 

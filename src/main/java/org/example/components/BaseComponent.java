@@ -4,7 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
 public abstract class BaseComponent<T extends Node> {
-    protected T node;
+    protected T componentNode;
     protected Color color;
     protected double posX;
     protected double posY;
@@ -27,12 +27,12 @@ public abstract class BaseComponent<T extends Node> {
 
     public void setPosX(double posX) {
         this.posX = posX;
-        node.setLayoutX(posX);
+        componentNode.setLayoutX(posX);
     }
 
     public void setPosY(double posY) {
         this.posY = posY;
-        node.setLayoutY(posY);
+        componentNode.setLayoutY(posY);
 
     }
 
@@ -40,8 +40,8 @@ public abstract class BaseComponent<T extends Node> {
         return color;
     }
 
-    public T getNode() {
-        return node;
+    public T getComponentNode() {
+        return componentNode;
     }
 
     public double getGetWidth() {

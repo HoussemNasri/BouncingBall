@@ -1,44 +1,48 @@
 package org.example.components;
 
+import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import org.example.behaviour.EnvironmentAware;
+import org.example.components.obstacles.WallComponent;
 import org.example.config.PConfiguration;
-import org.example.config.PlaygroundConfig;
+import org.example.config.Theme;
 import org.example.behaviour.Movable;
-import org.example.collision.PlaygroundCollider;
-import org.example.config.PlaygroundFactory;
+import org.example.config.ThemeFactory;
+import org.example.playground.Playground;
 
-public class BallComponent extends BaseComponent<Circle> implements Movable, PlaygroundCollider {
+public class BallComponent extends BaseComponent<Circle> implements Movable, EnvironmentAware {
     private double radius;
     private double xVelocity = DEFAULT_X_VELOCITY;
     private double yVelocity = DEFAULT_Y_VELOCITY;
-    private final PlaygroundConfig playgroundConfig = PlaygroundFactory.instance(PConfiguration.DEFAUlT);
+    private final Theme theme = ThemeFactory.instance(PConfiguration.DEFAUlT);
     private double mass;
+    private final Playground playground;
 
-    public BallComponent(double posX, double posY, double radius, Color color) {
+    public BallComponent(Playground playground, double posX, double posY, double radius, Color color) {
         super(posX, posY, radius * 2, radius * 2, color);
         this.radius = radius;
         this.mass = radius * 2;
-        node = new Circle();
 
+        componentNode = new Circle(radius);
         setPosX(posX);
         setPosY(posY);
-        node.setRadius(radius);
+        this.playground = playground;
+
         setColor(color);
     }
 
-    public BallComponent(double posX, double posY, double radius) {
-        this(posX, posY, radius, Color.BLACK);
+    public BallComponent(Playground playground, double posX, double posY, double radius) {
+        this(playground, posX, posY, radius, Color.BLACK);
     }
 
-    public BallComponent(double posX, double posY) {
-        this(posX, posY, 10.0d, Color.BLACK);
+    public BallComponent(Playground playground, double posX, double posY) {
+        this(playground, posX, posY, 10.0d, Color.BLACK);
     }
-
 
     @Override
     public void setColor(Color color) {
-        node.setFill(color);
+        componentNode.setFill(color);
         this.color = color;
     }
 
@@ -48,18 +52,20 @@ public class BallComponent extends BaseComponent<Circle> implements Movable, Pla
 
     @Override
     public void move() {
-        posX = posX + xVelocity;
-        posY = posY + yVelocity;
-        setPosX(posX);
-        setPosY(posY);
+        setPosX(posX + xVelocity);
+        setPosY(posY + yVelocity);
 
-        if (hasReachedTopBorder() || hasReachedBottomBorder()) {
-            onReachVerticalBorder();
+        if (isCollidingWithPlaygroundTop() || isCollidingWithPlaygroundBottom()) {
+            handlePlaygroundTopBottomCollision();
         }
 
-        if (hasReachedLeftBorder() || hasReachedRightBorder()) {
-            onReachHorizontalBorder();
+        if (isCollidingWithPlaygroundLeft() || isCollidingWithPlaygroundRight()) {
+            handlePlaygroundLeftRightCollision();
+            System.out.println(playground.width());
         }
+
+        //detectAndHandleObstacleCollision();
+
     }
 
     @Override
@@ -84,41 +90,72 @@ public class BallComponent extends BaseComponent<Circle> implements Movable, Pla
 
 
     @Override
-    public void onReachVerticalBorder() {
+    public void handlePlaygroundTopBottomCollision() {
         setYVelocity(yVelocity() * -1);
     }
 
     @Override
-    public void onReachHorizontalBorder() {
+    public void handlePlaygroundLeftRightCollision() {
         if (getPosX() < radius)
             setPosX(radius);
-        if (posX > playgroundConfig.getWidth() - radius)
-            setPosX(playgroundConfig.getWidth() - radius);
+        if (posX > playground.width() - radius)
+            setPosX(playground.width() - radius);
         setXVelocity(xVelocity * -1);
     }
 
     @Override
-    public boolean hasReachedTopBorder() {
+    public boolean isCollidingWithPlaygroundTop() {
         return posY - radius < 0;
     }
 
     @Override
-    public boolean hasReachedRightBorder() {
-        return posX + radius >= playgroundConfig.getWidth();
+    public boolean isCollidingWithPlaygroundRight() {
+        return posX + radius > playground.width();
     }
 
     @Override
-    public boolean hasReachedBottomBorder() {
-        return posY + radius > playgroundConfig.getHeight();
+    public boolean isCollidingWithPlaygroundBottom() {
+        return posY + radius > playground.height();
     }
 
     @Override
-    public boolean hasReachedLeftBorder() {
+    public boolean isCollidingWithPlaygroundLeft() {
         return posX - radius < 0;
+    }
+
+    @Override
+    public Playground getPlayground() {
+        return this.playground;
     }
 
 
     public double getMass() {
         return mass;
+    }
+
+    @Override
+    public void handleObstacleCollision() {
+        this.xVelocity = xVelocity * -1;
+        this.yVelocity = yVelocity * -1;
+    }
+
+    @Override
+    public boolean isCollidingWithObstacle(WallComponent wallComponent) {
+        return this.componentNode.intersects(wallComponent.componentNode.getBoundsInLocal());
+    }
+
+    @Override
+    public ObservableList<WallComponent> getObstacles() {
+        return playground.obstacles();
+    }
+
+    @Override
+    public void handleBallCollision() {
+
+    }
+
+    @Override
+    public ObservableList<BallComponent> getBalls() {
+        return playground.balls();
     }
 }

@@ -1,36 +1,47 @@
-package org.example;
+package org.example.playground;
 
 import javafx.animation.AnimationTimer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import org.example.components.BallComponent;
-import org.example.components.BaseComponent;
-import org.example.config.DefaultPlaygroundConfig;
-import org.example.config.PConfiguration;
-import org.example.config.PlaygroundConfig;
-import org.example.config.PlaygroundFactory;
+import org.example.components.obstacles.WallComponent;
+import org.example.util.PlaygroundUtils;
 
-public class Playground extends AnchorPane {
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class PlaygroundImpl extends AnchorPane implements Playground {
 
     private BallComponent ball1;
     private BallComponent ball2;
     private AnimationTimer timer;
+    private ObservableList<BallComponent> ballComponents;
+    private ObservableList<WallComponent> wallComponents;
 
-    public Playground() {
+    public PlaygroundImpl() {
         setup();
         setupAnimation(12000000L);
     }
 
     private void setup() {
-        ball1 = new BallComponent(50, 200, 20, Color.ORANGE);
-        ball2 = new BallComponent(300, 200, 150, Color.BLUE);
+        ball1 = new BallComponent(this, 100, 200, 20, Color.ORANGE);
+        ball2 = new BallComponent(this, 400, 200, 50, Color.BLUE);
+        ballComponents = FXCollections.observableArrayList(ball1, ball2);
+        getChildren().addAll(ball1.getComponentNode(), ball2.getComponentNode());
+        List<Node> obsNode =
+                PlaygroundUtils.generateObstacles(5, width(), height()).stream()
+                        .map((WallComponent obstacleComponent) -> obstacleComponent.getComponentNode()).collect(Collectors.toList());
 
-        getChildren().addAll(ball1.getNode(), ball2.getNode());
+        getChildren().addAll(obsNode);
 
         ball1.setXVelocity(5);
         ball1.setYVelocity(0);
 
-        ball2.setXVelocity(-4);
+        ball2.setXVelocity(-3);
         ball2.setYVelocity(0);
     }
 
@@ -78,5 +89,30 @@ public class Playground extends AnchorPane {
 
     public boolean detectBallCollision(BallComponent ball1, BallComponent ball2) {
         return Math.abs(ball1.getPosX() - ball2.getPosX()) < ball1.getRadius() + ball2.getRadius();
+    }
+
+    @Override
+    public double width() {
+        return 800.0d;
+    }
+
+    @Override
+    public double height() {
+        return 600.0d;
+    }
+
+    @Override
+    public Point2D startPoint() {
+        return null;
+    }
+
+    @Override
+    public ObservableList<WallComponent> obstacles() {
+        return null;
+    }
+
+    @Override
+    public ObservableList<BallComponent> balls() {
+        return null;
     }
 }
